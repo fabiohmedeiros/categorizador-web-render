@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferramenta de Categorização Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Painel de Controle Superior -->
+        <header id="control-panel">
+            <h1>Ferramenta de Categorização</h1>
+            <div id="upload-section">
+                <div class="upload-group">
+                    <label for="video-upload">1. Vídeo:</label>
+                    <input type="file" id="video-upload" name="video" accept="video/*,.mov,.mp4,.mkv,.avi,.wmv">
+                </div>
+                <div class="upload-group">
+                    <label for="csv-upload">2. Transcrição (.csv):</label>
+                    <input type="file" id="csv-upload" name="csv" accept=".csv">
+                </div>
+                <div class="upload-group">
+                    <label for="result-filename">3. Nome do arquivo final:</label>
+                    <input type="text" id="result-filename" placeholder="Ex: Sessao_1_Categorizada">
+                </div>
+                <button id="start-button">Iniciar Sessão</button>
+            </div>
+        </header>
+
+        <!-- Área de Conteúdo Principal -->
+        <main id="main-content" class="hidden">
+            <div id="video-container">
+                <video id="video-player" controls></video>
+            </div>
+            <div id="dialogue-section"> <!-- Nova div para agrupar diálogo e controles -->
+                <div id="dialogue-container">
+                    <!-- As falas serão inseridas aqui pelo JavaScript -->
+                </div>
+                <div id="finish-section" class="hidden"> <!-- ID CORRIGIDO E CLASSE HIDDEN ADICIONADA -->
+                    <button id="finish-button">Terminar e Salvar</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Menu de Contexto para Categorias (escondido por padrão) -->
+        <div id="context-menu" class="context-menu">
+            <!-- As categorias serão inseridas aqui pelo JavaScript -->
+        </div>
+
+        <!-- Overlay de Carregamento -->
+        <div id="loading-overlay" class="hidden">
+            <div class="spinner"></div>
+            <p>Processando...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
