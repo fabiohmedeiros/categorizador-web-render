@@ -10,24 +10,24 @@
 
 /* --- Estilos do Guia de Categorias --- */
 .guide-fab {
-    /* position, bottom, left, z-index removidos para se alinhar no header */
-    width: 2.5rem; /* Reduzido de 4rem */
-    height: 2.5rem; /* Reduzido de 4rem */
-    border-radius: 50%;
+    padding: 8px 15px; /* Similar ao padding de outros botões */
+    border: none;
+    border-radius: 5px; /* Borda arredondada como outros botões */
     background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
     color: white;
-    border: none;
+    font-size: 1em;
     cursor: pointer;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-    display: flex;
+    transition: all 0.2s ease; /* Transição para hover */
+    margin-left: auto; /* Empurra o botão para a direita no flex container */
+    flex-shrink: 0; /* Impede que o botão encolha */
+    display: flex; /* Para alinhar o ícone e o texto */
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
-    margin-left: auto; /* Empurra o botão para a direita no flex container */
-    flex-shrink: 0; /* Impede que o botão encolha se não houver espaço */
+    gap: 5px; /* Espaçamento entre ícone e texto */
 }
 .guide-fab:hover {
-    transform: scale(1.1);
+    transform: scale(1.05); /* Efeito de escala no hover */
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 }
 .guide-modal-overlay {
     position: fixed;
