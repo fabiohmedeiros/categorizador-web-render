@@ -247,11 +247,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.addEventListener('click', () => applyCategory(catData.abbr));
                 contextMenu.appendChild(item);
             }
-            const removeOption = document.createElement('div');
-            removeOption.className = 'context-menu-item remove';
-            removeOption.textContent = 'Remover Categoria';
-            removeOption.addEventListener('click', () => applyCategory(''));
-            contextMenu.appendChild(removeOption);
+            // Só adiciona "Remover Categoria" se pelo menos uma palavra na seleção já estiver categorizada
+            const hasCategorizedWordsInSelection = selectedWordIndices.some(index => 
+                dialogueData[index].categoria && dialogueData[index].categoria.trim() !== ''
+            );
+            if (hasCategorizedWordsInSelection) {
+                const removeOption = document.createElement('div');
+                removeOption.className = 'context-menu-item remove';
+                removeOption.textContent = 'Remover Categoria';
+                removeOption.addEventListener('click', () => applyCategory(''));
+                contextMenu.appendChild(removeOption);
+            }
 
             positionAndShowMenu(event);
         }
