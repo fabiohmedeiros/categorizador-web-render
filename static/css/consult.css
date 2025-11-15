@@ -10,22 +10,21 @@
 
 /* --- Estilos do Guia de Categorias --- */
 .guide-fab {
-    position: absolute; /* Alterado para absoluto para ficar dentro do container do vídeo */
-    bottom: 1.5rem;
-    left: 1.5rem; /* Alterado de 'right' para 'left' */
-    width: 4rem;
-    height: 4rem;
+    /* position, bottom, left, z-index removidos para se alinhar no header */
+    width: 2.5rem; /* Reduzido de 4rem */
+    height: 2.5rem; /* Reduzido de 4rem */
     border-radius: 50%;
     background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
     color: white;
     border: none;
     cursor: pointer;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
     transition: transform 0.2s ease;
+    margin-left: auto; /* Empurra o botão para a direita no flex container */
+    flex-shrink: 0; /* Impede que o botão encolha se não houver espaço */
 }
 .guide-fab:hover {
     transform: scale(1.1);
@@ -116,7 +115,4 @@
     margin: 0;
 }
 
-/* Adicionado para o posicionamento do botão */
-#video-container {
-    position: relative;
-}
+
