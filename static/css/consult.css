@@ -1,0 +1,122 @@
+/* --- Variáveis de Cor (do projeto original) --- */
+:root {
+    --color-primary: #4f46e5; /* indigo-600 */
+    --color-secondary: #7c3aed; /* purple-600 */
+    --color-text-dark: #334155; /* slate-700 */
+    --color-text-light: #64748b; /* slate-500 */
+    --color-bg-light: #f1f5f9; /* slate-100 */
+    --color-border: #cbd5e1; /* slate-300 */
+}
+
+/* --- Estilos do Guia de Categorias --- */
+.guide-fab {
+    position: absolute; /* Alterado para absoluto para ficar dentro do container do vídeo */
+    bottom: 1.5rem;
+    left: 1.5rem; /* Alterado de 'right' para 'left' */
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: transform 0.2s ease;
+}
+.guide-fab:hover {
+    transform: scale(1.1);
+}
+.guide-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    padding: 1rem;
+}
+.guide-container {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 50rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    text-align: left;
+}
+.guide-close-btn {
+    position: sticky;
+    top: -1rem;
+    float: right;
+    background: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: -1rem;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--color-text-light);
+    line-height: 1;
+    z-index: 2;
+}
+.guide-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 1.5rem;
+}
+.guide-tab-btn {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+.guide-tab-btn.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+.guide-category {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-bg-light);
+}
+.guide-category:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+.guide-category h3 {
+    font-size: 1.25rem;
+    color: var(--color-text-dark);
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+.guide-category p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+/* Adicionado para o posicionamento do botão */
+#video-container {
+    position: relative;
+}

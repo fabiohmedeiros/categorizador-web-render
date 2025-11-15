@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferramenta de Categorização Web</title>
+    <title>Ferramenta de Categorização - SiMCCIT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/consult.css') }}">
 </head>
 <body>
     <div id="app-container">
         <!-- Painel de Controle Superior -->
         <header id="control-panel">
-            <h1>Ferramenta de Categorização</h1>
+            <h1>Ferramenta de Categorização - SiMCCIT</h1>
             <div id="upload-section">
                 <div class="upload-group">
                     <label for="video-upload">1. Vídeo:</label>
@@ -43,6 +44,14 @@
             </div>
         </main>
 
+        <!-- Tela de Conclusão da Sessão -->
+        <div id="session-complete-screen" class="hidden" style="text-align: center; padding: 40px; margin-top: 50px;">
+            <h2>Sessão Finalizada!</h2>
+            <p style="font-size: 1.2em;">O arquivo CSV foi baixado com sucesso.</p>
+            <p>Tempo total da sessão: <strong id="total-time">00:00:00</strong></p>
+            <button id="restart-session-button" style="margin-top: 20px;">Iniciar Nova Sessão</button>
+        </div>
+
         <!-- Menu de Contexto para Categorias (escondido por padrão) -->
         <div id="context-menu" class="context-menu">
             <!-- As categorias serão inseridas aqui pelo JavaScript -->
@@ -56,5 +65,6 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/consult.js') }}"></script>
 </body>
 </html>

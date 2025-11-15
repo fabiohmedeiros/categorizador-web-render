@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let dialogueData = [];
     let currentWordIndex = -1;
     let selectedWordIndices = [];
+    let sessionStartTime; // <-- NOVO: Para o cronômetro
 
     // --- ELEMENTOS DO DOM ---
     const videoUpload = document.getElementById('video-upload');
@@ -43,12 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadSection = document.getElementById('upload-section');
     const finishSection = document.getElementById('finish-section');
     const mainContent = document.getElementById('main-content');
+    // --- NOVOS ELEMENTOS ---
+    const sessionCompleteScreen = document.getElementById('session-complete-screen');
+    const totalTimeSpan = document.getElementById('total-time');
+    const restartSessionButton = document.getElementById('restart-session-button');
+
 
     // --- VERIFICAÇÃO INICIAL DE ELEMENTOS ---
     const requiredElements = {
         videoUpload, csvUpload, startButton, finishButton, resultFilenameInput,
         videoPlayer, dialogueContainer, contextMenu, loadingOverlay, uploadSection,
-        finishSection, mainContent
+        finishSection, mainContent, sessionCompleteScreen, totalTimeSpan, restartSessionButton
     };
 
     for (const [name, el] of Object.entries(requiredElements)) {
@@ -66,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         videoPlayer.addEventListener('timeupdate', syncTextToVideo);
         dialogueContainer.addEventListener('click', handleWordClick);
         document.addEventListener('keyup', handleKeyup);
+        restartSessionButton.addEventListener('click', () => location.reload()); // <-- NOVO
         
         // Eventos do menu de contexto
         dialogueContainer.addEventListener('contextmenu', showContextMenu);
@@ -74,6 +81,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 contextMenu.style.display = 'none';
             }
         });
+    }
+
+    // --- FUNÇÃO HELPER PARA FORMATAR TEMPO ---
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
+        const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
     }
 
     // --- Manipulador de Teclado ---
@@ -115,6 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadSection.classList.add('hidden');
             mainContent.classList.remove('hidden');
             finishSection.classList.remove('hidden');
+
+            sessionStartTime = Date.now(); // <-- NOVO: Inicia o cronômetro
         } catch (error) {
             console.error('Erro ao iniciar sessão:', error);
             alert(`Erro: ${error.message}`);
@@ -172,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (newWord) {
                 newWord.classList.add('highlight');
                 
-                // NOVO: Verifica se a palavra está visível antes de rolar
                 const containerRect = dialogueContainer.getBoundingClientRect();
                 const wordRect = newWord.getBoundingClientRect();
 
@@ -189,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const startTime = parseFloat(event.target.dataset.start);
             if (!isNaN(startTime)) {
                 videoPlayer.currentTime = startTime;
-                // Força o scroll para a palavra clicada
                 event.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
@@ -232,31 +248,51 @@ document.addEventListener('DOMContentLoaded', () => {
         removeOption.textContent = 'Remover Categoria';
         removeOption.addEventListener('click', () => applyCategory(''));
         contextMenu.appendChild(removeOption);
-        contextMenu.style.left = `${event.pageX}px`;
-        contextMenu.style.top = `${event.pageY}px`;
+
+        contextMenu.style.visibility = 'hidden';
         contextMenu.style.display = 'block';
+
+        const menuWidth = contextMenu.offsetWidth;
+        const menuHeight = contextMenu.offsetHeight;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
+        let left = event.pageX;
+        let top = event.pageY;
+
+        if (left + menuWidth > windowWidth) {
+            left = event.pageX - menuWidth;
+            if (left < 0) {
+                left = 5;
+            }
+        }
+
+        if (top + menuHeight > windowHeight) {
+            top = event.pageY - menuHeight;
+            if (top < 0) {
+                top = 5;
+            }
+        }
+
+        contextMenu.style.left = `${left}px`;
+        contextMenu.style.top = `${top}px`;
+        contextMenu.style.visibility = 'visible';
     }
 
     function applyCategory(abbr) {
         selectedWordIndices.forEach(index => {
             const wordSpan = dialogueContainer.querySelector(`[data-index='${index}']`);
             if (wordSpan) {
-                // Remove a classe de aviso de não categorizado ao aplicar uma nova
                 wordSpan.classList.remove('nao-categorizado');
-
-                // Remove todas as classes de categoria existentes
                 Object.values(CATEGORIAS).forEach(speakerCats => {
                     Object.values(speakerCats).forEach(cat => {
                         wordSpan.classList.remove(cat.abbr);
                     });
                 });
-
-                // Adiciona a nova classe de categoria, se houver
                 if (abbr) {
                     wordSpan.classList.add(abbr);
                 }
             }
-            // Atualiza o dado no estado da aplicação
             dialogueData[index].categoria = abbr;
         });
         contextMenu.style.display = 'none';
@@ -264,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleFinish() {
-        // Primeiro, remove todos os avisos existentes para não acumular
         document.querySelectorAll('.nao-categorizado').forEach(el => el.classList.remove('nao-categorizado'));
 
         const uncategorizedIndices = dialogueData.reduce((acc, item, index) => {
@@ -275,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, []);
 
         if (uncategorizedIndices.length > 0) {
-            // Adiciona a classe de aviso aos itens não categorizados
             uncategorizedIndices.forEach(index => {
                 const wordSpan = dialogueContainer.querySelector(`[data-index='${index}']`);
                 if (wordSpan) {
@@ -283,20 +317,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Rola para o primeiro aviso
             const firstWarning = dialogueContainer.querySelector('.nao-categorizado');
             if (firstWarning) {
                 firstWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             const confirmation = confirm(
-                `Existem ${uncategorizedIndices.length} trechos de texto pendentes de categorização. Eles foram sublinhados em vermelho para sua conveniência.\n\nDeseja realmente salvar o arquivo mesmo assim?`
+                `Existem trechos de texto pendentes de categorização. Eles foram sublinhados em vermelho para sua conveniência.\n\nDeseja realmente salvar o arquivo mesmo assim?`
             );
             if (confirmation) {
                 executeSave();
             }
         } else {
-            // Se tudo estiver categorizado, apenas salva
             executeSave();
         }
     }
@@ -321,18 +353,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-            // Se a resposta não for OK, o corpo provavelmente contém um erro JSON
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Falha ao gerar o arquivo no servidor.');
             }
 
-            // Se a resposta for OK, o corpo é o arquivo CSV (blob)
             const blob = await response.blob();
             
-            // Extrai o nome do arquivo do cabeçalho Content-Disposition, se disponível
             const disposition = response.headers.get('Content-Disposition');
-            let downloadFilename = `${filename}_categorizado.csv`; // Fallback
+            let downloadFilename = `${filename}_categorizado.csv`;
             if (disposition && disposition.indexOf('attachment') !== -1) {
                 const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
                 const matches = filenameRegex.exec(disposition);
@@ -341,7 +370,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Cria um link temporário para iniciar o download
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
@@ -351,9 +379,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(a);
             a.click();
             
-            // Limpa o link e o URL do objeto
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
+
+            // --- LÓGICA DO CRONÔMETRO (FINAL) ---
+            const elapsedTime = Date.now() - sessionStartTime;
+            totalTimeSpan.textContent = formatTime(elapsedTime);
+            mainContent.classList.add('hidden');
+            document.getElementById('control-panel').classList.add('hidden'); // Esconde painel superior
+            sessionCompleteScreen.classList.remove('hidden');
+
 
         } catch (error) {
             console.error('Erro ao salvar:', error);
