@@ -13,21 +13,27 @@
         <header id="control-panel">
             <h1>Ferramenta de Categorização - SiMCCIT</h1>
             <div id="upload-section">
-                <div class="upload-group">
-                    <label for="video-upload">1. Vídeo:</label>
-                    <input type="file" id="video-upload" name="video" accept="video/*,.mov,.mp4,.mkv,.avi,.wmv">
-                </div>
-                <div class="upload-group">
-                    <label for="csv-upload">2. Transcrição (.csv):</label>
-                    <input type="file" id="csv-upload" name="csv" accept=".csv">
-                </div>
-                <div class="upload-group">
-                    <label for="result-filename">3. Nome do arquivo final:</label>
-                    <input type="text" id="result-filename" placeholder="Ex: Sessao_1_Categorizada">
-                </div>
-                <button id="start-button">Iniciar Sessão</button>
+                <!-- ... upload inputs and start button ... -->
             </div>
         </header>
+
+        <!-- Página de Instruções (escondida por padrão) -->
+        <div id="instructions-page" class="hidden">
+            <div class="instructions-card">
+                <h2>Instruções para Categorização</h2>
+                <p>Bem-vindo à ferramenta de categorização! Siga os passos abaixo para utilizar:</p>
+                <ul>
+                    <li><strong>Assista e Acompanhe:</strong> O vídeo e a transcrição aparecerão lado a lado. O texto será destacado conforme o vídeo avança.</li>
+                    <li><strong>Categorizar Trechos:</strong> Selecione um ou mais trechos de texto na transcrição. Clique com o botão direito do mouse sobre a seleção para abrir o menu de categorias e escolher a opção desejada.</li>
+                    <li><strong>Remover Categorias:</strong> Para remover uma categoria de um trecho já classificado, clique com o botão direito do mouse sobre qualquer palavra desse trecho e selecione "Remover Categoria".</li>
+                    <li><strong>Consultar Categorias:</strong> Use o botão "Categorias" no canto superior direito para consultar as definições de cada categoria a qualquer momento.</li>
+                    <li><strong>Navegação Rápida:</strong> Clique em qualquer palavra da transcrição para pular para o ponto correspondente no vídeo.</li>
+                    <li><strong>Controle do Vídeo:</strong> Use a barra de espaço para pausar ou continuar o vídeo.</li>
+                    <li><strong>Finalizar:</strong> Ao terminar, clique no botão "Terminar" para baixar o arquivo CSV com todas as suas categorizações.</li>
+                </ul>
+                <button id="start-categorization-button">Começar Categorização</button>
+            </div>
+        </div>
 
         <!-- Área de Conteúdo Principal -->
         <main id="main-content" class="hidden">

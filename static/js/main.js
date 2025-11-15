@@ -14,9 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ELEMENTOS DO DOM ---
     const videoUpload = document.getElementById('video-upload'), csvUpload = document.getElementById('csv-upload'), startButton = document.getElementById('start-button'), finishButton = document.getElementById('finish-button'), resultFilenameInput = document.getElementById('result-filename'), videoPlayer = document.getElementById('video-player'), dialogueContainer = document.getElementById('dialogue-container'), contextMenu = document.getElementById('context-menu'), loadingOverlay = document.getElementById('loading-overlay'), uploadSection = document.getElementById('upload-section'), finishSection = document.getElementById('finish-section'), mainContent = document.getElementById('main-content'), sessionCompleteScreen = document.getElementById('session-complete-screen'), totalTimeSpan = document.getElementById('total-time'), restartSessionButton = document.getElementById('restart-session-button'), categoryTooltip = document.getElementById('category-tooltip');
+    // NOVOS ELEMENTOS PARA A PÁGINA DE INSTRUÇÕES
+    const instructionsPage = document.getElementById('instructions-page');
+    const startCategorizationButton = document.getElementById('start-categorization-button');
+
 
     // --- VERIFICAÇÃO INICIAL ---
-    const requiredElements = { videoUpload, csvUpload, startButton, finishButton, resultFilenameInput, videoPlayer, dialogueContainer, contextMenu, loadingOverlay, uploadSection, finishSection, mainContent, sessionCompleteScreen, totalTimeSpan, restartSessionButton, categoryTooltip };
+    const requiredElements = { videoUpload, csvUpload, startButton, finishButton, resultFilenameInput, videoPlayer, dialogueContainer, contextMenu, loadingOverlay, uploadSection, finishSection, mainContent, sessionCompleteScreen, totalTimeSpan, restartSessionButton, categoryTooltip, instructionsPage, startCategorizationButton };
     for (const [name, el] of Object.entries(requiredElements)) {
         if (!el) {
             console.error(`[Erro Crítico] Elemento do DOM não encontrado: #${name}.`);
@@ -39,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
         dialogueContainer.addEventListener('mouseover', handleShowTooltip);
         dialogueContainer.addEventListener('mouseout', handleHideTooltip);
         dialogueContainer.addEventListener('mousemove', handleMoveTooltip);
+        // Listener para o botão de iniciar categorização
+        startCategorizationButton.addEventListener('click', handleStartCategorization);
     }
 
     // --- FUNÇÕES HELPER ---
@@ -111,16 +117,23 @@ document.addEventListener('DOMContentLoaded', () => {
             renderDialogue();
             videoPlayer.src = uploadResult.video_url;
             uploadSection.classList.add('hidden');
-            mainContent.classList.remove('hidden');
-            finishSection.classList.remove('hidden');
-            window.dispatchEvent(new CustomEvent('session-started'));
-            sessionStartTime = Date.now();
+            // Em vez de mostrar mainContent e finishSection, mostra a página de instruções
+            instructionsPage.classList.remove('hidden');
+            window.dispatchEvent(new CustomEvent('session-started')); // Avisa o outro script que a sessão "começou" (para mostrar o botão de categorias)
+            // O cronômetro só inicia quando o usuário clica em "Começar Categorização"
         } catch (error) {
             console.error('Erro ao iniciar sessão:', error);
             alert(`Erro: ${error.message}`);
         } finally {
             loadingOverlay.classList.add('hidden');
         }
+    }
+
+    function handleStartCategorization() {
+        instructionsPage.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        finishSection.classList.remove('hidden');
+        sessionStartTime = Date.now(); // Cronômetro inicia aqui
     }
 
     function renderDialogue() {
