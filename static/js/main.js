@@ -340,45 +340,76 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         loadingOverlay.classList.remove('hidden');
-        try {
-            const response = await fetch('/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: filename, records: dialogueData })
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Falha ao gerar o arquivo no servidor.');
+        const maxRetries = 3;
+        let currentRetry = 0;
+        let success = false;
+        let lastError = null;
+        while (currentRetry < maxRetries && !success) {
+            try {
+                if (currentRetry > 0) {
+                    // Espera antes de tentar novamente
+                    await new Promise(resolve => setTimeout(resolve, 2000 * currentRetry)); // Espera 2s, 4s, 6s
+                    console.log(`Tentando salvar novamente (tentativa ${currentRetry + 1}/${maxRetries})...`);
+                    // Poderíamos atualizar a mensagem do overlay de carregamento aqui, se necessário
+                }
+                const response = await fetch('/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, records: dialogueData })
+                });
+                if (!response.ok) {
+                    let errorMessage = 'Falha ao gerar o arquivo no servidor.';
+                    const contentType = response.headers.get('Content-Type');
+                    if (contentType && contentType.includes('application/json')) {
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.error || errorMessage;
+                        } catch (jsonError) {
+                            console.error('Erro ao parsear JSON de erro:', jsonError);
+                            errorMessage = `Erro inesperado do servidor (não JSON): ${response.status} ${response.statusText}`;
+                        }
+                    } else {
+                        // Se não é JSON, pode ser um erro HTML do Render ou outro tipo de resposta
+                        const textError = await response.text();
+                        console.error('Resposta de erro não JSON:', textError);
+                        errorMessage = `Erro do servidor: ${response.status} ${response.statusText}.`;
+                    }
+                    throw new Error(errorMessage);
+                }
+                // Se chegamos aqui, a requisição foi bem-sucedida
+                success = true;
+                const blob = await response.blob();
+                const disposition = response.headers.get('Content-Disposition');
+                let downloadFilename = `${filename}_categorizado.csv`;
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    const matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) downloadFilename = matches[1].replace(/['"]/g, '');
+                }
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = downloadFilename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                const elapsedTime = Date.now() - sessionStartTime;
+                totalTimeSpan.textContent = formatTime(elapsedTime);
+                mainContent.classList.add('hidden');
+                document.getElementById('control-panel').classList.add('hidden');
+                sessionCompleteScreen.classList.remove('hidden');
+            } catch (error) {
+                lastError = error;
+                console.error(`Erro na tentativa ${currentRetry + 1}:`, error);
+                currentRetry++;
             }
-            const blob = await response.blob();
-            const disposition = response.headers.get('Content-Disposition');
-            let downloadFilename = `${filename}_categorizado.csv`;
-            if (disposition && disposition.indexOf('attachment') !== -1) {
-                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                const matches = filenameRegex.exec(disposition);
-                if (matches != null && matches[1]) downloadFilename = matches[1].replace(/['"]/g, '');
-            }
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = downloadFilename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-
-            const elapsedTime = Date.now() - sessionStartTime;
-            totalTimeSpan.textContent = formatTime(elapsedTime);
-            mainContent.classList.add('hidden');
-            document.getElementById('control-panel').classList.add('hidden');
-            sessionCompleteScreen.classList.remove('hidden');
-        } catch (error) {
-            console.error('Erro ao salvar:', error);
-            alert(`Erro: ${error.message}`);
-        } finally {
-            loadingOverlay.classList.add('hidden');
         }
+        if (!success) {
+            alert(`Erro persistente ao salvar: ${lastError ? lastError.message : 'Erro desconhecido'}. Por favor, tente novamente.`);
+        }
+        loadingOverlay.classList.add('hidden');
     }
 
     // --- INICIAR APLICAÇÃO ---
