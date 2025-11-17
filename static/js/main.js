@@ -117,8 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
             renderDialogue();
             videoPlayer.src = uploadResult.video_url;
             uploadSection.classList.add('hidden');
-            // Em vez de mostrar mainContent e finishSection, mostra a página de instruções
-            instructionsPage.classList.remove('hidden');
+            // Pula a página de instruções e vai direto para a categorização
+            mainContent.classList.remove('hidden');
+            finishSection.classList.remove('hidden');
+            sessionStartTime = Date.now(); // Inicia o cronômetro imediatamente
+
             window.dispatchEvent(new CustomEvent('session-started')); // Avisa o outro script que a sessão "começou" (para mostrar o botão de categorias)
             // O cronômetro só inicia quando o usuário clica em "Começar Categorização"
         } catch (error) {
